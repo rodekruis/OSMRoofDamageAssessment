@@ -95,6 +95,17 @@ psql -U postgres -d osm -c "select setval('users_id_seq', (select max(id) from u
 sudo /etc/init.d/postgresql restart
 ```
 
+## Upgrading openstreetmap-website
+To upgrade the custom-damage-assessment branch of the openstreetmap-website to the master of the [official openstreetmap-website repository](https://github.com/openstreetmap/openstreetmap-website/), do the following:
+```
+cd /var/www/vhosts/openstreetmap-website
+git remote add openstreetmap https://github.com/openstreetmap/iD.git #probably already done
+git fetch openstreetmap
+git merge openstreetmap-website/release
+git commit -a -m "merge with master"
+git push
+```
+
 # ID-editor
 ----------------------
 ## Configure
@@ -129,3 +140,16 @@ git commit -a -m "updated filters"
 git push
 ```
 For the changes to be added to the openstreetmap-website, you need also to rebuild the openstreetmap-website working copy using the steps in #Rebuilding openstreetmap-website
+
+## Upgrading ID-editor
+To upgrade the custom-damage-assessment branch of iD to the [current latest release](https://github.com/openstreetmap/iD/releases) of the [official iD repository](https://github.com/openstreetmap/iD/), do the following:
+```
+cd /var/www/vhosts/iD
+git remote add latest-id https://github.com/openstreetmap/iD.git
+git fetch latest-id
+git merge v2.4.1 # replace with latest release
+npm install
+npm run all
+git commit -a -m "merge with latest release"
+git push
+```
