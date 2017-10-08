@@ -63,7 +63,7 @@ WSGIScriptAlias / /var/www/vhosts/tm/production.wsgi
 ```
 Enable the site with:
 ```
-a2ensite id
+a2ensite tm
 sudo service apache2 restart
 ```
 
