@@ -114,14 +114,18 @@ rm -rf vendor/assets/iD && bundle exec vendorer
 bundle exec rake assets:precompile RAILS_ENV=production
 sudo service apache2 restart
 ```
-Edit config/secrets.yml
+
+## Prepare damage OSM database
+
+### Configure secrets
+Edit config/secrets.yml. Perform the below, for each environment.
 ```
 export RAILS_ENV=production
 rake secret
 ## replace secret key at production 
 nano config/secrets.yml
  ```
-## Prepare damage OSM database
+ 
 ### Create database to import nodes into
 Update the database config. and set three different database names for development, test and production.
 ```
