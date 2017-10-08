@@ -18,6 +18,15 @@ Install the following on an Ubuntu 16.04 server:
 - ogr2osm, using [this installation instruction](http://wiki.openstreetmap.org/wiki/Ogr2osm). Install in /root/
 - OSMConvert, download the 64bit linux binary, using [these installation instructions](http://wiki.openstreetmap.org/wiki/Osmconvert). Install in /root/
 
+Install Apache
+```
+sudo apt-get update
+sudo apt-get install apache2
+
+sudo apt-get install libapache2-mod-passenger
+sudo a2enmod passenger
+```
+
 # Tasking manager
 ----------------------
 
@@ -25,12 +34,68 @@ If you need to change your custom id-editor url in the tasking manager, edit the
 
 You need an openstreetmap account to log into the custom tasking manager.
 
+## configure apache for the tasking manager
+Add a site to /etc/apache2/sites-available/tm.conf with the following content, and update the servername and serveradmin:
+```
+WSGIRestrictStdin Off
+<VirtualHost *:80>
+ServerName "tasks.your.domain"
+ServerAdmin info@your.dommain
+DocumentRoot /var/www/vhosts/tm/
+CustomLog /var/log/apache2/osmtm-access.log combined
+ErrorLog /var/log/apache2/osmtm-error.log
+
+WSGIDaemonProcess tm user=www-data group=www-data threads=5 display-name=%{GROUP} python-path=/var/www/vhosts/tm/:/var/www/vhosts/tm/env/lib/python2.7/site-packages
+WSGIScriptAlias / /var/www/vhosts/tm/production.wsgi
+
+<Directory /var/www/vhosts/tm/>
+        WSGIApplicationGroup %{GLOBAL}
+        WSGIProcessGroup tm
+        WSGIPassAuthorization On
+
+        Options Indexes FollowSymLinks
+        AllowOverride All
+        Order deny,allow
+        Allow from all
+        IndexOptions FancyIndexing
+</Directory>
+</VirtualHost>
+```
+Enable the site with:
+```
+a2ensite id
+sudo service apache2 restart
+```
+
+
 # openstreetmap-website
 ----------------------
 
-Best is to create one openstreetmap user specifically for the work in ID-editor. The OSM database is an empty copy of openstreetmap.org and does not contain the global user accounts.
+## configure apache for openstreetmap-website
+Add a site to /etc/apache2/sites-available/openstreetmap-website.conf with the following content, , and update the servername and serveradmin:
+```
+<VirtualHost *:80>
+      ServerAdmin info@your.domain
+      ServerName openstreetmap.your.domain
+      DocumentRoot /var/www/vhosts/openstreetmap-website/public
+      PassengerRuby /usr/bin/ruby
+    <Directory /var/www/vhosts/openstreetmap-website/public>
+      Allow from all
+      Options -MultiViews
+      # Uncomment this if you're on Apache >= 2.4:
+      Require all granted
+    </Directory>
+</VirtualHost>
+```
+Enable the site with:
+```
+a2ensite openstreetmap-website
+sudo service apache2 restart
+```
 
 ## configure openstreetmap-website
+Best is to create one openstreetmap user specifically for the work in ID-editor. The OSM database is an empty copy of openstreetmap.org and does not contain the global user accounts.
+
 Login to the id-editor with one OSM user and create an OATH ID for this user by going to the user --> profile --> settings --> OATH settings.
 
 Then register a new application with the following:
@@ -117,7 +182,7 @@ git push
 
 # ID-editor
 ----------------------
-## Configure
+The ID-editor is built from the /var/www/vhosts/iD working copy, and then pushed to the repository on github. The openstreetmap-website will pull in the build code of the ID-editor, and launch the ID-editor within the openstreetmap-website. No additional configuration of apache for the ID-editor is needed.
 
 ### Imagery sources
 To change the imagery sources that you want to have available:
