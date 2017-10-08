@@ -1,7 +1,16 @@
-Open a virtual server
-====================
+# Roof damage assessment by aerial imagery
+--------------------
+Using high resolution aerial imagery it is possible to do a crowdsourced quick damage assessment after a disaster that has done visible damage to roofs.
 
-**Requirements**
+This readme explains how to set up the HOTOSM tasking manager, openstreetmap-website and id-editor to allow a small group of  trained and instructed mappers to classify damage, roof types and roof materials.
+
+The setup described in this readme has three classification tasks:
+- Roof type: classify hipped, flat and pitch roofs based on pre-disaster imagery (imagery: 20cm is good, 50cm is not great)
+- Roof material: classify materials that exist in the area. Current setup is: concrete, metal, tiles, mixed, tiles or metal (if undecided), and unknown
+- Damage: classify damage using the [Harvard Humanitarian Initiative BAR methodology](https://hhi.harvard.edu/publications/satellite-imagery-interpretation-guide-assessing-wind-disaster-damage-structures), in five categories: none, partial, significant, destroyed, unknown. (imagery: <10cm is ideal, 20cm maybe possible, 50cm not good).
+
+# Requirements
+--------------------
 Install the following on an Ubuntu 16.04 server:
  * [HOT Tasking Manager branch custom-damage-assessment assessment](https://github.com/rodekruis/osm-tasking-manager2/tree/custom-damage-assessment), using the [TM installation instructions](https://github.com/rodekruis/osm-tasking-manager2/blob/master/README.md). Install in /var/www/vhosts/tm/
  *  [openstreetmap-website branch custom-damage-assessment]( https://github.com/rodekruis/openstreetmap-website/tree/custom-damage-assessment), using the [installation instructions](https://github.com/rodekruis/openstreetmap-website/blob/custom-damage-assessment/INSTALL.md). Install in /var/www/vhosts/openstreetmap-website
