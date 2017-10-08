@@ -168,6 +168,21 @@ psql -U postgres -d osm -c "select setval('current_relations_id_seq', (select ma
 psql -U postgres -d osm -c "select setval('users_id_seq', (select max(id) from users))"
 ```
 
+## Optimize postgres
+Edit /etc/postgresql/postgresql.conf. Look for the below settings and replace the values. {{values}} should be replaced also.
+```
+shared_preload_libraries = 'pg_stat_statements'
+pg_stat_statements.max = 100
+pg_stat_statements.track = top
+pg_stat_statements.save = off
+shared_buffers = {{shared_buffers}}MB # 25% of system memory
+effective_cache_size = {{effective_cache_size}}MB # 50% of system memory
+checkpoint_completion_target = 0.9
+random_page_cost = 2.0
+work_mem = 30MB
+maintenance_work_mem = 300MB
+max_stack_depth = 3MB
+```
 ## Restart postgres
 ```
 sudo /etc/init.d/postgresql restart
