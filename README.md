@@ -136,7 +136,7 @@ Create the database
 bundle exec rake db:create
 ```
 ### import building nodes
-Roof damage classification works best if an empty OSM database is created with one node on the centroid of each building. This therefor requires a very accurate base map in OSM. Use QGIS to create a shapefile with one point per building.
+Roof damage classification works best if an empty OSM database is created with one node on the centroid of each building. This therefor requires a very accurate base map in OSM. Use QGIS to create a shapefile with one point per building. Make sure to include the OSM identified of your building in an osm_id column of your centroid shapefile. This you need later to bind the data to the original OSM building polygons, and enrich OSM with your data.
 
 Upload the shapefile to the server and convert it to a .pbf file:
 ```
@@ -246,3 +246,36 @@ npm run all
 git commit -a -m "merge with latest release"
 git push
 ```
+
+# Analyzing damage data
+---------------------
+
+Roof type, material and damage data can be extracted from the OSM database with the following commands on the server:
+
+``
+psql -U postgres -d osm
+p = pgsql
+``
+
+And execute this query:
+
+```sql
+Copy (
+select no.node_id, no.version,no.latitude, no.longitude, no.tile, nt3.v as osm_id, nt1.v as damage, nt2.v as roof, nt4.v as material
+FROM 
+nodes no
+LEFT JOIN node_tags nt1
+ON nt1.node_id = no.node_id AND nt1.version = no.version AND nt1.k='damage'
+LEFT JOIN node_tags nt2
+ON nt2.node_id = no.node_id AND nt2.version = no.version AND nt2.k='roof'
+LEFT JOIN node_tags nt4
+ON nt4.node_id = no.node_id AND nt4.version = no.version AND nt4.k='material'
+LEFT JOIN node_tags nt3
+ON nt3.node_id = no.node_id AND nt3.version = no.version AND nt3.k='osm_id'
+WHERE
+no.version = (SELECT MAX(version) FROM nodes n WHERE n.node_id = no.node_id GROUP BY node_id)
+ORDER BY node_id ASC
+) To '/tmp/damagedata.csv' With CSV DELIMITER ',';
+```
+
+Grab the file from /tmp and use it in your analysis. It contains for every node the osm_id (refering to the original building polygon in OSM), the damage, roof type and roof material classifications, and the node_id.
