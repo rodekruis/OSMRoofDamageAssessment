@@ -254,7 +254,6 @@ Roof type, material and damage data can be extracted from the OSM database with 
 
 ``
 psql -U postgres -d osm
-p = pgsql
 ``
 
 And execute this query:
